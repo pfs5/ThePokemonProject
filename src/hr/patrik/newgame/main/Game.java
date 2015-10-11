@@ -22,7 +22,7 @@ public class Game extends Canvas implements Runnable {
 	public static int HEIGHT = (int) (WIDTH*(9./16.));
 	public static int scale = 1;
 	public final static String title = "New Game";
-	public final int speed = 600;
+	public final int speed = 300;
 
 	public static int width = WIDTH*scale;
 	public static int height = HEIGHT*scale;
@@ -45,8 +45,8 @@ public class Game extends Canvas implements Runnable {
 	public Game () {
 		Dimension size = new Dimension (width, height);
 		setPreferredSize(size);
-		System.out.println(width + " " + height + " " + scale);
-		screen = new Screen(width, height, scale);
+
+		screen = new Screen(width, height, scale, xOffset, yOffset);
 		frame = new JFrame();
 		keyboard = new Keyboard();
 		
@@ -107,34 +107,35 @@ public class Game extends Canvas implements Runnable {
 	//Game logics
 	public void tick () {
 		getKey();
+		screen.move();
 	}
 	
 	public void getKey () {	
 		if (keyboard.keys[KeyEvent.VK_W])
-			yOffset--;
+			screen.setMove("U");
 		
 		if (keyboard.keys[KeyEvent.VK_A])
-			xOffset--;
+			screen.setMove("L");
 		
 		if (keyboard.keys[KeyEvent.VK_S])
-			yOffset++;
+			screen.setMove("D");
 		
 		if (keyboard.keys[KeyEvent.VK_D]) 
-			xOffset++;
+			screen.setMove("R");
 
-		//Check map edges
-		int mapWidth = screen.mapWidth;
-		int mapHeight = screen.mapHeight;
-		
-		if (xOffset<0)
-			xOffset = 0;
-		if (yOffset<0)
-			yOffset = 0;
-		
-		if (xOffset+getWidth()>mapWidth*scale)
-			xOffset--;
-		if (yOffset+getHeight()>mapHeight*scale)
-			yOffset--;
+//		//Check map edges
+//		int mapWidth = screen.mapWidth;
+//		int mapHeight = screen.mapHeight;
+//		
+//		if (xOffset<0)
+//			xOffset = 0;
+//		if (yOffset<0)
+//			yOffset = 0;
+//		
+//		if (xOffset+getWidth()>mapWidth*scale)
+//			xOffset--;
+//		if (yOffset+getHeight()>mapHeight*scale)
+//			yOffset--;
 	}
 
 	//Game graphics
@@ -149,7 +150,7 @@ public class Game extends Canvas implements Runnable {
 		
 		//Draw screen
 		screen.clear();
-		screen.render(xOffset,yOffset);
+		screen.render();
 		
 		for (int i=0; i<pixels.length; i++) {
 			pixels[i] = screen.pixels[i];
