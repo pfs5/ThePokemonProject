@@ -17,9 +17,10 @@ public class Game extends Canvas implements Runnable {
 
 	private static final long serialVersionUID = 1L;
 
+	//Window settings
 	public static int WIDTH = 500;
-	public static int HEIGHT = WIDTH/ 16 * 9;
-	public static int scale = 2;		//Multiplication
+	public static int HEIGHT = (int) (WIDTH*(9./16.));
+	public static int scale = 1;
 	public final static String title = "New Game";
 	public final int speed = 600;
 
@@ -27,6 +28,7 @@ public class Game extends Canvas implements Runnable {
 	public static int height = HEIGHT*scale;
 	final int ups = speed*scale;
 	
+	//Initial position
 	int xOffset = 0;
 	int yOffset = 0;
 
@@ -43,7 +45,7 @@ public class Game extends Canvas implements Runnable {
 	public Game () {
 		Dimension size = new Dimension (width, height);
 		setPreferredSize(size);
-
+		System.out.println(width + " " + height + " " + scale);
 		screen = new Screen(width, height, scale);
 		frame = new JFrame();
 		keyboard = new Keyboard();
@@ -93,7 +95,8 @@ public class Game extends Canvas implements Runnable {
 			//Print UPS, FPS
 			if (System.currentTimeMillis()-timer > 1000) {
 				timer+=1000;
-				frame.setTitle(title + "  |  " + updates + " ups, " + frames + " fps");
+				frame.setTitle(title + "  |  " + updates + " ups, " + frames + " fps"
+						+ "   |   " + width + "x" + height);
 				updates = 0;
 				frames = 0;
 			}
