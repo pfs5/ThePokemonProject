@@ -10,6 +10,7 @@ public class MainCharacter {
 	public int x;
 	public int y;
 	private String direction;
+	private int leg;
 	
 	public int imageWidth;
 	public int imageHeight; 
@@ -21,6 +22,7 @@ public class MainCharacter {
 	public MainCharacter (int x, int y, int scale) {
 		this.x = x;
 		this.y = y;
+		leg = 1;
 		//Load image
 		try {
 			image = ImageIO.read(getClass().getResource(path));
@@ -35,10 +37,24 @@ public class MainCharacter {
 	
 	public void setDirection(String direction) {
 		this.direction = direction;
-		setImage();
+		setStandImage();
 	}
 	
-	public void setImage() {
+	public void setWalkImage() {
+		try {
+			String newPath = "/resources/testCharacter" + direction + "" + leg + ".png";
+			image = ImageIO.read(getClass().getResource(newPath));
+			if (leg == 1)
+				leg = 2;
+			else
+				leg = 1;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void setStandImage() {
 		try {
 			path = "/resources/testCharacter" + direction + ".png";
 			image = ImageIO.read(getClass().getResource(path));

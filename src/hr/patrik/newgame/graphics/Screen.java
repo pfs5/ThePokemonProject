@@ -115,6 +115,9 @@ public class Screen {
 		}
 
 		//Add main character to map
+		mainCharacterImage = mainCharacter.image.getRGB(0, 0, mainCharacterWidth,
+				mainCharacterHeight, mainCharacterImage, 0, mainCharacterWidth);
+		
 		for (int y=0; y<mainCharacterHeight*scale; y++) {
 			for (int x=0; x<mainCharacterWidth*scale; x++) {
 				int realY = y/scale;
@@ -169,11 +172,16 @@ public class Screen {
 		}
 		if (turning == true)
 			tick++;
-		if (tick == maxTick)
+		
+		//Mid tick image change
+		if (tick == maxTick/2)
+			mainCharacter.setWalkImage();
+		
+		if (tick == maxTick) {
 			turning = false;
-
-		if (tick == maxTick)
 			moving = false;
+			mainCharacter.setStandImage();
+		}
 
 		//Map edges
 		if (xOffset<0)
