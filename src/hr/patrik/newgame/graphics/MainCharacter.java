@@ -11,7 +11,6 @@ public class MainCharacter {
 	public int y;
 	private String direction;
 	
-	private int scale;
 	public int imageWidth;
 	public int imageHeight; 
 	
@@ -22,8 +21,6 @@ public class MainCharacter {
 	public MainCharacter (int x, int y, int scale) {
 		this.x = x;
 		this.y = y;
-		this.scale = scale;
-		
 		//Load image
 		try {
 			image = ImageIO.read(getClass().getResource(path));
