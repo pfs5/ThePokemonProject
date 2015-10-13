@@ -22,7 +22,7 @@ public class Game extends Canvas implements Runnable {
 	public static int HEIGHT = (int) (WIDTH*(9./16.));
 	public static int scale = 1;
 	public final static String title = "New Game";
-	public final int speed = 300;
+	public final int speed = 200;
 
 	public static int width = WIDTH*scale;
 	public static int height = HEIGHT*scale;
@@ -39,8 +39,8 @@ public class Game extends Canvas implements Runnable {
 	private Screen screen;
 	private Keyboard keyboard;
 	
-	private BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-	private int[] pixels = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+	private BufferedImage mapImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+	private int[] pixels = ((DataBufferInt)mapImage.getRaster().getDataBuffer()).getData();
 
 	public Game () {
 		Dimension size = new Dimension (width, height);
@@ -123,19 +123,6 @@ public class Game extends Canvas implements Runnable {
 		if (keyboard.keys[KeyEvent.VK_D]) 
 			screen.setMove("R");
 
-//		//Check map edges
-//		int mapWidth = screen.mapWidth;
-//		int mapHeight = screen.mapHeight;
-//		
-//		if (xOffset<0)
-//			xOffset = 0;
-//		if (yOffset<0)
-//			yOffset = 0;
-//		
-//		if (xOffset+getWidth()>mapWidth*scale)
-//			xOffset--;
-//		if (yOffset+getHeight()>mapHeight*scale)
-//			yOffset--;
 	}
 
 	//Game graphics
@@ -152,6 +139,7 @@ public class Game extends Canvas implements Runnable {
 		screen.clear();
 		screen.render();
 		
+		//Copy image pixels into current screen
 		for (int i=0; i<pixels.length; i++) {
 			pixels[i] = screen.pixels[i];
 		}
@@ -160,7 +148,8 @@ public class Game extends Canvas implements Runnable {
 		
 		//Display graphics
 		{
-			g.drawImage(image,0,0,getWidth(),getHeight(),null);
+			//Draw map
+			g.drawImage(mapImage,0,0,getWidth(),getHeight(),null);
 		}
 		g.dispose();
 		bs.show();

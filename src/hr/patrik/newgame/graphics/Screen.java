@@ -19,11 +19,15 @@ public class Screen {
 	private int scale;
 	public int[] pixels;		//Current window
 
+	private int BASE = 30;
+
 	private int tick;
-	private int maxTick = 40;
+	private int maxTick = BASE;
 
 	private String direction;
 	private boolean moving;
+	private boolean movable;
+	private boolean turning;
 	private int xOffset;
 	private int yOffset;
 
@@ -31,8 +35,16 @@ public class Screen {
 	public int mapHeight;
 	public int[] map;			//Whole map
 
-	String path = "/resources/newMap.png";
-	BufferedImage mapImage;
+	//Main character
+	private MainCharacter mainCharacter;
+	private int mainCharacterX;
+	private int mainCharacterY;
+	private int mainCharacterWidth;
+	private int mainCharacterHeight;
+	private int[] mainCharacterImage;
+
+	private String path = "/resources/testMap.png";
+	private BufferedImage mapImage;
 
 	public Screen (int width, int height, int scale, int xOffset, int yOffset) {
 		this.width = width;
@@ -40,9 +52,15 @@ public class Screen {
 		this.scale = scale;
 		this.xOffset = xOffset;
 		this.yOffset = yOffset;
+		
+		BASE*=scale;
+		maxTick = BASE;
+
 		pixels = new int [width*height];
 
+		movable = true;
 		moving = false;
+		turning = false;
 		direction = "N";
 		tick = 0;
 
@@ -60,6 +78,18 @@ public class Screen {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		//Load main character
+		mainCharacterX = ((width/2)/BASE)*BASE;
+		mainCharacterY = ((height/2)/BASE)*BASE;
+		mainCharacter = new MainCharacter(mainCharacterX, mainCharacterY, scale);
+		mainCharacterWidth = mainCharacter.imageWidth;
+		mainCharacterHeight = mainCharacter.imageHeight;
+		mainCharacterX = mainCharacter.x;
+		mainCharacterY = mainCharacter.y;
+		mainCharacterImage = new int [mainCharacterWidth*mainCharacterHeight];
+		mainCharacterImage = mainCharacter.image.getRGB(0, 0, mainCharacterWidth,
+				mainCharacterHeight, mainCharacterImage, 0, mainCharacterWidth);
 	}
 
 	//Clear screen
@@ -72,6 +102,8 @@ public class Screen {
 
 	//Draw
 	public void render () {
+
+		//Draw map
 		for (int y=0; y<height; y++) {
 			int mapY = (y+yOffset)/scale;
 
@@ -79,6 +111,19 @@ public class Screen {
 				int mapX = (x+xOffset)/scale;
 				int mapIndex = mapY*mapWidth + mapX;
 				pixels [width*y+x] = map[mapIndex];
+			}
+		}
+
+		//Add main character to map
+		for (int y=0; y<mainCharacterHeight*scale; y++) {
+			for (int x=0; x<mainCharacterWidth*scale; x++) {
+				int realY = y/scale;
+				int realX = x/scale;
+				int mapY = (y+mainCharacterY);
+				int mapX = (x+mainCharacterX);
+				int mainCharIndex = realY*mainCharacterWidth+realX;
+				if (mainCharacterImage[mainCharIndex] != -2972731)	//transparency
+					pixels [width*mapY+mapX] = mainCharacterImage[mainCharIndex];
 			}
 		}
 	}
@@ -93,15 +138,25 @@ public class Screen {
 	 */
 	public void setMove(String direction) {
 		if (moving == false) {
+			String oldDirection = this.direction;
 			this.direction = direction;
-			moving = true;
-			tick = 0;
+			mainCharacter.setDirection(direction);
+			mainCharacterImage = mainCharacter.image.getRGB(0, 0, mainCharacterWidth,
+					mainCharacterHeight, mainCharacterImage, 0, mainCharacterWidth);
+			if (oldDirection != this.direction) {
+				turning = true;
+				tick = 0;
+			}
+			else if (turning == false) {
+				moving = true;
+				tick = 0;
+			}
 		}
 	}
 
 	public void move () {
-
-		if (moving == true) {
+		
+		if (moving == true && movable == true) {
 			if (direction.equals("U"))
 				yOffset--;
 			if (direction.equals("D"))
@@ -112,7 +167,11 @@ public class Screen {
 				xOffset++;
 			tick++;
 		}
-		
+		if (turning == true)
+			tick++;
+		if (tick == maxTick)
+			turning = false;
+
 		if (tick == maxTick)
 			moving = false;
 
