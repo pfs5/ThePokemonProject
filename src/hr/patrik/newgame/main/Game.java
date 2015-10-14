@@ -20,10 +20,10 @@ public class Game extends Canvas implements Runnable {
 	//Window settings
 	public static int WIDTH = 500;
 	public static int HEIGHT = (int) (WIDTH*(9./16.));
-	public static int scale = 2;
+	public static int scale = 1;
 	public final static String title = "New Game";
 	public final int speed = 200;
-	public static int BASE;				//40px
+	public static int BASE = 30;				
 
 	public static int width = WIDTH*scale;
 	public static int height = HEIGHT*scale;
@@ -31,7 +31,7 @@ public class Game extends Canvas implements Runnable {
 	
 	//Initial position
 	int xOffset = 0;
-	int yOffset = 0;
+	int yOffset = BASE*scale*4;
 
 	private Thread thread;
 	private JFrame frame;
@@ -50,8 +50,6 @@ public class Game extends Canvas implements Runnable {
 		screen = new Screen(width, height, scale, xOffset, yOffset);
 		frame = new JFrame();
 		keyboard = new Keyboard();
-		
-		BASE = screen.BASE;
 		
 		frame.addKeyListener(keyboard);
 	}

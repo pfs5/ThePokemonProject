@@ -33,7 +33,10 @@ public class Screen {
 
 	public int mapWidth;
 	public int mapHeight;
-	public int[] map;			//Whole map
+	public int[] mapBottom;
+	public int[] mapTop;
+	public int[] mapDataInt;
+	public Pixel[] mapData;
 
 	//Main character
 	private MainCharacter mainCharacter;
@@ -43,8 +46,13 @@ public class Screen {
 	private int mainCharacterHeight;
 	private int[] mainCharacterImage;
 
-	private String path = "/resources/testMap.png";
-	private BufferedImage mapImage;
+	private String mapTopPath = "/map_resources/testMapTop.png";
+	private String mapBottomPath = "/map_resources/testMapBottom.png";
+	private String dataPath = "/map_resources/testMapData.png";
+
+	private BufferedImage mapTopImage;
+	private BufferedImage mapBottomImage;
+	private BufferedImage mapDataImage;
 
 	public Screen (int width, int height, int scale, int xOffset, int yOffset) {
 		this.width = width;
@@ -52,10 +60,9 @@ public class Screen {
 		this.scale = scale;
 		this.xOffset = xOffset;
 		this.yOffset = yOffset;
-		
+
 		BASE*=scale;
 		maxTick = BASE;
-
 		pixels = new int [width*height];
 
 		movable = true;
@@ -67,14 +74,33 @@ public class Screen {
 		load();
 	}
 
-	//Load whole map
 	public void load () {
+
 		try {
-			mapImage = ImageIO.read(getClass().getResource(path));
-			mapWidth = mapImage.getWidth();
-			mapHeight = mapImage.getHeight();
-			map = new int[mapWidth*mapHeight];
-			mapImage.getRGB(0,0,mapWidth,mapHeight,map,0,mapWidth);
+			//Load map layers
+			mapBottomImage = ImageIO.read(getClass().getResource(mapBottomPath)); 
+			mapTopImage = ImageIO.read(getClass().getResource(mapTopPath));
+
+			mapWidth = mapBottomImage.getWidth();
+			mapHeight = mapBottomImage.getHeight();
+
+			//Load map data
+			mapDataImage = ImageIO.read(getClass().getResource(dataPath));
+			mapDataInt = new int[mapWidth*mapHeight];
+			mapDataImage.getRGB(0,0,mapWidth,mapHeight,mapDataInt,0,mapWidth);
+			mapData = new Pixel[mapWidth*mapHeight];
+			for (int i=0; i<mapDataInt.length; i++) {
+				int id = mapDataInt[i];
+				mapData[i] = new Pixel(id);
+			}
+
+			//Load map layers arrays
+			mapTop= new int[mapWidth*mapHeight];
+			mapTopImage.getRGB(0,0,mapWidth,mapHeight,mapTop,0,mapWidth);
+
+			mapBottom= new int[mapWidth*mapHeight];
+			mapBottomImage.getRGB(0,0,mapWidth,mapHeight,mapBottom,0,mapWidth);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -103,21 +129,21 @@ public class Screen {
 	//Draw
 	public void render () {
 
-		//Draw map
+		//Draw bottom map layer
 		for (int y=0; y<height; y++) {
 			int mapY = (y+yOffset)/scale;
 
 			for (int x=0; x<width; x++) {
 				int mapX = (x+xOffset)/scale;
 				int mapIndex = mapY*mapWidth + mapX;
-				pixels [width*y+x] = map[mapIndex];
+				pixels [width*y+x] = mapBottom[mapIndex];
 			}
 		}
 
-		//Add main character to map
+		//Draw main character
 		mainCharacterImage = mainCharacter.image.getRGB(0, 0, mainCharacterWidth,
 				mainCharacterHeight, mainCharacterImage, 0, mainCharacterWidth);
-		
+
 		for (int y=0; y<mainCharacterHeight*scale; y++) {
 			for (int x=0; x<mainCharacterWidth*scale; x++) {
 				int realY = y/scale;
@@ -125,8 +151,20 @@ public class Screen {
 				int mapY = (y+mainCharacterY);
 				int mapX = (x+mainCharacterX);
 				int mainCharIndex = realY*mainCharacterWidth+realX;
-				if (mainCharacterImage[mainCharIndex] != -2972731)	//transparency
+				if (mainCharacterImage[mainCharIndex] != ColorData.transparent())	//transparency
 					pixels [width*mapY+mapX] = mainCharacterImage[mainCharIndex];
+			}
+		}
+
+		//Draw top map layer
+		for (int y=0; y<height; y++) {
+			int mapY = (y+yOffset)/scale;
+
+			for (int x=0; x<width; x++) {
+				int mapX = (x+xOffset)/scale;
+				int mapIndex = mapY*mapWidth + mapX;
+				if (mapTop[mapIndex] != ColorData.transparent())
+					pixels [width*y+x] = mapTop[mapIndex];
 			}
 		}
 	}
@@ -158,8 +196,10 @@ public class Screen {
 	}
 
 	public void move () {
-		
+
 		if (moving == true && movable == true) {
+			
+			//Move
 			if (direction.equals("U"))
 				yOffset--;
 			if (direction.equals("D"))
@@ -169,29 +209,64 @@ public class Screen {
 			if (direction.equals("R"))
 				xOffset++;
 			tick++;
+			
+			//Check map edges
+			if (xOffset<0)
+				xOffset = 0;
+			if (yOffset<0)
+				yOffset = 0;
+
+			if (xOffset+width>mapWidth*scale)
+				xOffset--;
+			if (yOffset+height>mapHeight*scale)
+				yOffset--;
+			
+			//Check movement
+			boolean passable = true;
+			int locationX;
+			int locationY;
+			int mapLocationIndex;
+			
+			//Left + bottom edge
+			locationX = (xOffset+mainCharacterX)*scale;
+			locationY = (yOffset+mainCharacterY+mainCharacter.imageHeight-1)*scale;
+			mapLocationIndex = locationY*mapWidth+locationX;
+			if (mapData[mapLocationIndex].id == ColorData.impassable())
+				passable = false;
+			
+			//Right + top edge
+			locationX = (xOffset+mainCharacterX+BASE-1)*scale;
+			locationY = (yOffset+mainCharacterY+mainCharacter.imageHeight-BASE)*scale;
+			mapLocationIndex = locationY*mapWidth+locationX;
+			if (mapData[mapLocationIndex].id == ColorData.impassable())
+				passable = false;
+			
+			if (passable == false) {
+				//Undo move
+				if (direction.equals("U"))
+					yOffset++;
+				if (direction.equals("D"))
+					yOffset--;
+				if (direction.equals("L"))
+					xOffset++;
+				if (direction.equals("R"))
+					xOffset--;
+			}
+				
+			
 		}
 		if (turning == true)
 			tick++;
-		
+
 		//Mid tick image change
 		if (tick == maxTick/2)
 			mainCharacter.setWalkImage();
-		
+
 		if (tick == maxTick) {
 			turning = false;
 			moving = false;
 			mainCharacter.setStandImage();
 		}
 
-		//Map edges
-		if (xOffset<0)
-			xOffset = 0;
-		if (yOffset<0)
-			yOffset = 0;
-
-		if (xOffset+width>mapWidth*scale)
-			xOffset--;
-		if (yOffset+height>mapHeight*scale)
-			yOffset--;
 	}
 }
