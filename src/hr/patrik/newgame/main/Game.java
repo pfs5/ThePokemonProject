@@ -23,6 +23,7 @@ public class Game extends Canvas implements Runnable {
 	public static int scale = 2;
 	public final static String title = "New Game";
 	public final int speed = 200;
+	public static int BASE;				//40px
 
 	public static int width = WIDTH*scale;
 	public static int height = HEIGHT*scale;
@@ -49,6 +50,8 @@ public class Game extends Canvas implements Runnable {
 		screen = new Screen(width, height, scale, xOffset, yOffset);
 		frame = new JFrame();
 		keyboard = new Keyboard();
+		
+		BASE = screen.BASE;
 		
 		frame.addKeyListener(keyboard);
 	}

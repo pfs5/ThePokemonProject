@@ -19,7 +19,7 @@ public class Screen {
 	private int scale;
 	public int[] pixels;		//Current window
 
-	private int BASE = 30;
+	public int BASE = 30;
 
 	private int tick;
 	private int maxTick = BASE;
