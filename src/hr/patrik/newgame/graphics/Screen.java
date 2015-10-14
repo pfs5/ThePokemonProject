@@ -1,29 +1,38 @@
 package hr.patrik.newgame.graphics;
 
+import hr.patrik.newgame.objects.Attack;
+import hr.patrik.newgame.objects.Item;
+import hr.patrik.newgame.objects.Lists;
+import hr.patrik.newgame.objects.Pokemon;
+
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 /*
  * Class implements all drawing
  * 
  * 
  */
 
-import javax.imageio.ImageIO;
-
 public class Screen {
 
 
+	//Main window variables
 	private int width;
 	private int height;
 	private int scale;
 	public int[] pixels;		//Current window
 
+	//Base block size
 	public int BASE = 30;
 
+	//Ticks
 	private int tick;
 	private int maxTick = BASE;
 
+	//State variables
 	private String direction;
 	private boolean moving;
 	private boolean movable;
@@ -31,6 +40,7 @@ public class Screen {
 	private int xOffset;
 	private int yOffset;
 
+	//Map variables
 	public int mapWidth;
 	public int mapHeight;
 	public int[] mapBottom;
@@ -46,13 +56,21 @@ public class Screen {
 	private int mainCharacterHeight;
 	private int[] mainCharacterImage;
 
+	//Map paths
 	private String mapTopPath = "/map_resources/testMapTop.png";
 	private String mapBottomPath = "/map_resources/testMapBottom.png";
 	private String dataPath = "/map_resources/testMapData.png";
 
+	//Images
 	private BufferedImage mapTopImage;
 	private BufferedImage mapBottomImage;
 	private BufferedImage mapDataImage;
+	
+	//Lists
+	Lists lists;
+	ArrayList<Pokemon> pokemonList;
+	ArrayList<Attack> attackList;
+	ArrayList<Item> itemList;
 
 	public Screen (int width, int height, int scale, int xOffset, int yOffset) {
 		this.width = width;
@@ -63,7 +81,9 @@ public class Screen {
 
 		BASE*=scale;
 		maxTick = BASE;
+		
 		pixels = new int [width*height];
+		lists = new Lists();
 
 		movable = true;
 		moving = false;
@@ -76,6 +96,8 @@ public class Screen {
 
 	public void load () {
 
+		getLists();
+		
 		try {
 			//Load map layers
 			mapBottomImage = ImageIO.read(getClass().getResource(mapBottomPath)); 
@@ -116,6 +138,12 @@ public class Screen {
 		mainCharacterImage = new int [mainCharacterWidth*mainCharacterHeight];
 		mainCharacterImage = mainCharacter.image.getRGB(0, 0, mainCharacterWidth,
 				mainCharacterHeight, mainCharacterImage, 0, mainCharacterWidth);
+	}
+	
+	public void getLists() {
+		pokemonList = lists.getPokemonList();
+		attackList = lists.getAttackList();
+		itemList = lists.getItemList();
 	}
 
 	//Clear screen
