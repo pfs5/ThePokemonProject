@@ -228,15 +228,15 @@ public class Screen {
 			int mapLocationIndex;
 			
 			//Left + bottom edge
-			locationX = (xOffset+mainCharacterX)*scale;
-			locationY = (yOffset+mainCharacterY+mainCharacter.imageHeight-1)*scale;
+			locationX = (xOffset+mainCharacterX)/scale;
+			locationY = (yOffset+mainCharacterY)/scale+mainCharacter.imageHeight-1;
 			mapLocationIndex = locationY*mapWidth+locationX;
 			if (mapData[mapLocationIndex].id == ColorData.impassable())
 				passable = false;
 			
 			//Right + top edge
-			locationX = (xOffset+mainCharacterX+BASE-1)*scale;
-			locationY = (yOffset+mainCharacterY+mainCharacter.imageHeight-BASE)*scale;
+			locationX = (xOffset+mainCharacterX+BASE)/scale-1;
+			locationY = (yOffset+mainCharacterY)/scale+mainCharacter.imageHeight-BASE/scale;
 			mapLocationIndex = locationY*mapWidth+locationX;
 			if (mapData[mapLocationIndex].id == ColorData.impassable())
 				passable = false;

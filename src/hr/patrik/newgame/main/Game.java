@@ -20,10 +20,10 @@ public class Game extends Canvas implements Runnable {
 	//Window settings
 	public static int WIDTH = 500;
 	public static int HEIGHT = (int) (WIDTH*(9./16.));
-	public static int scale = 1;
+	public static int scale = 2;
 	public final static String title = "New Game";
 	public final int speed = 200;
-	public static int BASE = 30;				
+	public static int BASE = 30;		//If changed - must be updated in Screen class			
 
 	public static int width = WIDTH*scale;
 	public static int height = HEIGHT*scale;
