@@ -10,12 +10,24 @@ package hr.patrik.newgame.graphics;
  * 
  */
 
-
 public class Pixel {
 	
 	public int id;
+	public String type;
+	public String name;
 	
 	public Pixel (int id) {
 		this.id = id;
+		name = "Pixel";
+		type = "Pixel";
 	}
+	
+	public void setType (String type) {
+		this.type = type;
+	}
+	
+	public void setName (String name) {
+		this.name = name;
+	}
+	
 }

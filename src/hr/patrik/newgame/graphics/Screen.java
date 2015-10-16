@@ -3,13 +3,11 @@ package hr.patrik.newgame.graphics;
 import hr.patrik.newgame.objects.Attack;
 import hr.patrik.newgame.objects.Item;
 import hr.patrik.newgame.objects.Lists;
+import hr.patrik.newgame.objects.Matrix;
 import hr.patrik.newgame.objects.Pokemon;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
 /*
  * Class implements all drawing
  * 
@@ -39,14 +37,13 @@ public class Screen {
 	private boolean turning;
 	private int xOffset;
 	private int yOffset;
+	private int mapOffsetX;
+	private int mapOffsetY;
 
 	//Map variables
-	public int mapWidth;
-	public int mapHeight;
-	public int[] mapBottom;
-	public int[] mapTop;
-	public int[] mapDataInt;
-	public Pixel[] mapData;
+	private String mapName;
+	private int mapWidth;
+	private int mapHeight;
 
 	//Main character
 	private MainCharacter mainCharacter;
@@ -56,16 +53,11 @@ public class Screen {
 	private int mainCharacterHeight;
 	private int[] mainCharacterImage;
 
-	//Map paths
-	private String mapTopPath = "/map_resources/testMapTop.png";
-	private String mapBottomPath = "/map_resources/testMapBottom.png";
-	private String dataPath = "/map_resources/testMapData.png";
+	//Map matrix'
+	private Matrix matrix;
 
-	//Images
-	private BufferedImage mapTopImage;
-	private BufferedImage mapBottomImage;
-	private BufferedImage mapDataImage;
-	
+
+
 	//Lists
 	Lists lists;
 	ArrayList<Pokemon> pokemonList;
@@ -81,10 +73,12 @@ public class Screen {
 
 		BASE*=scale;
 		maxTick = BASE;
-		
+
 		pixels = new int [width*height];
 		lists = new Lists();
+		matrix = new Matrix();
 
+		mapName = "map";
 		movable = true;
 		moving = false;
 		turning = false;
@@ -97,35 +91,9 @@ public class Screen {
 	public void load () {
 
 		getLists();
-		
-		try {
-			//Load map layers
-			mapBottomImage = ImageIO.read(getClass().getResource(mapBottomPath)); 
-			mapTopImage = ImageIO.read(getClass().getResource(mapTopPath));
 
-			mapWidth = mapBottomImage.getWidth();
-			mapHeight = mapBottomImage.getHeight();
-
-			//Load map data
-			mapDataImage = ImageIO.read(getClass().getResource(dataPath));
-			mapDataInt = new int[mapWidth*mapHeight];
-			mapDataImage.getRGB(0,0,mapWidth,mapHeight,mapDataInt,0,mapWidth);
-			mapData = new Pixel[mapWidth*mapHeight];
-			for (int i=0; i<mapDataInt.length; i++) {
-				int id = mapDataInt[i];
-				mapData[i] = new Pixel(id);
-			}
-
-			//Load map layers arrays
-			mapTop= new int[mapWidth*mapHeight];
-			mapTopImage.getRGB(0,0,mapWidth,mapHeight,mapTop,0,mapWidth);
-
-			mapBottom= new int[mapWidth*mapHeight];
-			mapBottomImage.getRGB(0,0,mapWidth,mapHeight,mapBottom,0,mapWidth);
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		mapWidth = matrix.mapWidth;
+		mapHeight = matrix.mapHeight;
 
 		//Load main character
 		mainCharacterX = ((width/2)/BASE)*BASE;
@@ -139,7 +107,7 @@ public class Screen {
 		mainCharacterImage = mainCharacter.image.getRGB(0, 0, mainCharacterWidth,
 				mainCharacterHeight, mainCharacterImage, 0, mainCharacterWidth);
 	}
-	
+
 	public void getLists() {
 		pokemonList = lists.getPokemonList();
 		attackList = lists.getAttackList();
@@ -164,7 +132,15 @@ public class Screen {
 			for (int x=0; x<width; x++) {
 				int mapX = (x+xOffset)/scale;
 				int mapIndex = mapY*mapWidth + mapX;
-				pixels [width*y+x] = mapBottom[mapIndex];
+				switch (mapName) {
+				case "map":
+					pixels [width*y+x] = matrix.mapBottom[mapIndex];
+					break;
+
+				case "house001":
+					pixels [width*y+x] = matrix.house001Bottom[mapIndex];
+					break;
+				}
 			}
 		}
 
@@ -191,8 +167,17 @@ public class Screen {
 			for (int x=0; x<width; x++) {
 				int mapX = (x+xOffset)/scale;
 				int mapIndex = mapY*mapWidth + mapX;
-				if (mapTop[mapIndex] != ColorData.transparent())
-					pixels [width*y+x] = mapTop[mapIndex];
+				switch (mapName) {
+				case "map":
+					if (matrix.mapTop[mapIndex] != ColorData.transparent())
+						pixels [width*y+x] = matrix.mapTop[mapIndex];
+					break;
+
+				case "house001":
+					if (matrix.house001Top[mapIndex] != ColorData.transparent())
+						pixels [width*y+x] = matrix.house001Top[mapIndex]; 
+					break;
+				}
 			}
 		}
 	}
@@ -224,9 +209,9 @@ public class Screen {
 	}
 
 	public void move () {
-
+		printStuff();
 		if (moving == true && movable == true) {
-			
+
 			//Move
 			if (direction.equals("U"))
 				yOffset--;
@@ -237,7 +222,7 @@ public class Screen {
 			if (direction.equals("R"))
 				xOffset++;
 			tick++;
-			
+
 			//Check map edges
 			if (xOffset<0)
 				xOffset = 0;
@@ -248,40 +233,11 @@ public class Screen {
 				xOffset--;
 			if (yOffset+height>mapHeight*scale)
 				yOffset--;
+
+			checkMovement();
 			
-			//Check movement
-			boolean passable = true;
-			int locationX;
-			int locationY;
-			int mapLocationIndex;
-			
-			//Left + bottom edge
-			locationX = (xOffset+mainCharacterX)/scale;
-			locationY = (yOffset+mainCharacterY)/scale+mainCharacter.imageHeight-1;
-			mapLocationIndex = locationY*mapWidth+locationX;
-			if (mapData[mapLocationIndex].id == ColorData.impassable())
-				passable = false;
-			
-			//Right + top edge
-			locationX = (xOffset+mainCharacterX+BASE)/scale-1;
-			locationY = (yOffset+mainCharacterY)/scale+mainCharacter.imageHeight-BASE/scale;
-			mapLocationIndex = locationY*mapWidth+locationX;
-			if (mapData[mapLocationIndex].id == ColorData.impassable())
-				passable = false;
-			
-			if (passable == false) {
-				//Undo move
-				if (direction.equals("U"))
-					yOffset++;
-				if (direction.equals("D"))
-					yOffset--;
-				if (direction.equals("L"))
-					xOffset++;
-				if (direction.equals("R"))
-					xOffset--;
-			}
-				
-			
+
+
 		}
 		if (turning == true)
 			tick++;
@@ -295,6 +251,86 @@ public class Screen {
 			moving = false;
 			mainCharacter.setStandImage();
 		}
+	}
+	
+	
+	
+	public void checkMovement(){
+		//Check movement
+		boolean passable = true;
 
+		//Left + bottom edge
+		int locationX1 = (xOffset+mainCharacterX)/scale;
+		int locationY1 = (yOffset+mainCharacterY)/scale+mainCharacter.imageHeight-1; //TODO
+		int mapLocationIndex1 = locationY1*mapWidth+locationX1;
+		//Right + top edge
+		int locationX2 = (xOffset+mainCharacterX+BASE)/scale-1;
+		int locationY2 = (yOffset+mainCharacterY)/scale+mainCharacter.imageHeight-BASE/scale;
+		int mapLocationIndex2 = locationY2*mapWidth+locationX2;
+		
+		switch (mapName) {
+		case ("map"):
+			if (matrix.mapData[mapLocationIndex1].id == ColorData.impassable())
+				passable = false;
+			else if (matrix.mapData[mapLocationIndex2].id == ColorData.impassable())
+				passable = false;
+
+			else if (matrix.mapData[mapLocationIndex1].type.equals("Door"))
+				setMap(matrix.mapData[mapLocationIndex1].name);
+			else if (matrix.mapData[mapLocationIndex2].type.equals("Door"))
+				setMap(matrix.mapData[mapLocationIndex2].name);
+
+		break;
+		case ("house001"):
+			if (matrix.house001Data[mapLocationIndex1].id == ColorData.impassable())
+				passable = false;
+			else if (matrix.house001Data[mapLocationIndex2].id == ColorData.impassable())
+				passable = false;
+		
+			else if (matrix.house001Data[mapLocationIndex1].type.equals("Door"))
+				setMap(matrix.house001Data[mapLocationIndex1].name);
+				else if (matrix.house001Data[mapLocationIndex2].type.equals("Door"))
+				setMap(matrix.house001Data[mapLocationIndex2].name);
+		break;
+		}
+
+		if (passable == false) {
+			//Undo move
+			if (direction.equals("U"))
+				yOffset++;
+			if (direction.equals("D"))
+				yOffset--;
+			if (direction.equals("L"))
+				xOffset++;
+			if (direction.equals("R"))
+				xOffset--;
+		}
+	}
+	
+	public void setMap (String mapName) {
+		this.mapName = mapName;
+		switch (mapName) {
+		case ("map"):
+			mapWidth = matrix.mapWidth;
+			mapHeight = matrix.mapHeight;
+			
+			xOffset = mapOffsetX;
+			yOffset = mapOffsetY;
+			break;
+
+		case ("house001"):
+			mapWidth = matrix.house001Width;
+			mapHeight = matrix.house001Height;
+			
+			mapOffsetX = xOffset;
+			mapOffsetY = yOffset;
+			xOffset = 4*BASE;
+			yOffset = 8*BASE;
+			break;	
+		}
+		moving = false;
+	}
+
+	public void printStuff() {
 	}
 }
