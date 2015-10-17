@@ -6,6 +6,7 @@ import hr.patrik.newgame.objects.Lists;
 import hr.patrik.newgame.objects.Matrix;
 import hr.patrik.newgame.objects.Pokemon;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 
 /*
@@ -84,7 +85,7 @@ public class Screen {
 		turning = false;
 		direction = "N";
 		tick = 0;
-
+		
 		load();
 	}
 
@@ -124,7 +125,6 @@ public class Screen {
 
 	//Draw
 	public void render () {
-
 		//Draw bottom map layer
 		for (int y=0; y<height; y++) {
 			int mapY = (y+yOffset)/scale;
@@ -132,63 +132,74 @@ public class Screen {
 			for (int x=0; x<width; x++) {
 				int mapX = (x+xOffset)/scale;
 				int mapIndex = mapY*mapWidth + mapX;
+
+				int colorBottom = 0;
+				int colorTop = 0;
+				boolean top = false;
+				boolean bottom = false;
+
 				switch (mapName) {
+
 				case "map":
-					pixels [width*y+x] = matrix.mapBottom[mapIndex];
+					if (matrix.mapMatrix[mapIndex].layer.equals("bottom")) {
+						colorBottom = matrix.mapMatrix[mapIndex].color;
+						bottom = true;
+					}
+					else {
+						colorTop = matrix.mapMatrix[mapIndex].color;
+						top = true;
+					}
 					break;
 
 				case "house001":
-					pixels [width*y+x] = matrix.house001Bottom[mapIndex];
+					if (matrix.house001Matrix[mapIndex].layer.equals("bottom")) {
+						colorBottom = matrix.house001Matrix[mapIndex].color;
+						bottom = true;
+					}
+					else {
+						colorTop = matrix.house001Matrix[mapIndex].color;
+						top = true;
+					}
 					break;
 
 				case "house001b":
-					pixels [width*y+x] = matrix.house001bBottom[mapIndex];
+					if (matrix.house001bMatrix[mapIndex].layer.equals("bottom")) {
+						colorBottom = matrix.house001bMatrix[mapIndex].color;
+						bottom = true;
+					}
+					else {
+						colorTop = matrix.house001bMatrix[mapIndex].color;
+						top = true;
+					}
 					break;
 				}
+
+				if (bottom)
+					pixels [width*y+x] = colorBottom;
+
+				//TODO draw char
+
+				if (top)
+					pixels[width*y+x] = colorTop;
 			}
 		}
 
-		//Draw main character
-		mainCharacterImage = mainCharacter.image.getRGB(0, 0, mainCharacterWidth,
-				mainCharacterHeight, mainCharacterImage, 0, mainCharacterWidth);
 
-		for (int y=0; y<mainCharacterHeight*scale; y++) {
-			for (int x=0; x<mainCharacterWidth*scale; x++) {
-				int realY = y/scale;
-				int realX = x/scale;
-				int mapY = (y+mainCharacterY);
-				int mapX = (x+mainCharacterX);
-				int mainCharIndex = realY*mainCharacterWidth+realX;
-				if (mainCharacterImage[mainCharIndex] != ColorData.transparent())	//transparency
-					pixels [width*mapY+mapX] = mainCharacterImage[mainCharIndex];
-			}
-		}
-
-		//Draw top map layer
-		for (int y=0; y<height; y++) {
-			int mapY = (y+yOffset)/scale;
-
-			for (int x=0; x<width; x++) {
-				int mapX = (x+xOffset)/scale;
-				int mapIndex = mapY*mapWidth + mapX;
-				switch (mapName) {
-				case "map":
-					if (matrix.mapTop[mapIndex] != ColorData.transparent())
-						pixels [width*y+x] = matrix.mapTop[mapIndex];
-					break;
-
-				case "house001":
-					if (matrix.house001Top[mapIndex] != ColorData.transparent())
-						pixels [width*y+x] = matrix.house001Top[mapIndex]; 
-					break;
-
-				case "house001b":
-					if (matrix.house001bTop[mapIndex] != ColorData.transparent())
-						pixels [width*y+x] = matrix.house001bTop[mapIndex]; 
-					break;
+				//Draw main character
+				mainCharacterImage = mainCharacter.image.getRGB(0, 0, mainCharacterWidth,
+						mainCharacterHeight, mainCharacterImage, 0, mainCharacterWidth);
+		
+				for (int y=0; y<mainCharacterHeight*scale; y++) {
+					for (int x=0; x<mainCharacterWidth*scale; x++) {
+						int realY = y/scale;
+						int realX = x/scale;
+						int mapY = (y+mainCharacterY);
+						int mapX = (x+mainCharacterX);
+						int mainCharIndex = realY*mainCharacterWidth+realX;
+						if (mainCharacterImage[mainCharIndex] != ColorData.transparent())	//transparency
+							pixels [width*mapY+mapX] = mainCharacterImage[mainCharIndex];
+					}
 				}
-			}
-		}
 	}
 
 	/*
@@ -287,44 +298,44 @@ public class Screen {
 		//Set pixels to be examined
 		switch (mapName) {
 		case ("map"):
-			firstCheckId = matrix.mapData[mapLocationIndex1].id;
-			firstCheckType = matrix.mapData[mapLocationIndex1].type;
-			firstCheckName = matrix.mapData[mapLocationIndex1].name;
-			
-			secondCheckId = matrix.mapData[mapLocationIndex2].id;
-			secondCheckType = matrix.mapData[mapLocationIndex2].type;
-			secondCheckName = matrix.mapData[mapLocationIndex2].name;
-			
-			break;
+			firstCheckId = matrix.mapMatrix[mapLocationIndex1].data;
+		firstCheckType = matrix.mapMatrix[mapLocationIndex1].type;
+		firstCheckName = matrix.mapMatrix[mapLocationIndex1].name;
+
+		secondCheckId = matrix.mapMatrix[mapLocationIndex2].data;
+		secondCheckType = matrix.mapMatrix[mapLocationIndex2].type;
+		secondCheckName = matrix.mapMatrix[mapLocationIndex2].name;
+
+		break;
 		case ("house001"):
-			firstCheckId = matrix.house001Data[mapLocationIndex1].id;
-			firstCheckType = matrix.house001Data[mapLocationIndex1].type;
-			firstCheckName = matrix.house001Data[mapLocationIndex1].name;
-			
-			secondCheckId = matrix.house001Data[mapLocationIndex2].id;
-			secondCheckType = matrix.house001Data[mapLocationIndex2].type;
-			secondCheckName = matrix.house001Data[mapLocationIndex2].name;
+			firstCheckId = matrix.house001Matrix[mapLocationIndex1].data;
+		firstCheckType = matrix.house001Matrix[mapLocationIndex1].type;
+		firstCheckName = matrix.house001Matrix[mapLocationIndex1].name;
+
+		secondCheckId = matrix.house001Matrix[mapLocationIndex2].data;
+		secondCheckType = matrix.house001Matrix[mapLocationIndex2].type;
+		secondCheckName = matrix.house001Matrix[mapLocationIndex2].name;
 		break;
 		case ("house001b"):
-			firstCheckId = matrix.house001bData[mapLocationIndex1].id;
-			firstCheckType = matrix.house001bData[mapLocationIndex1].type;
-			firstCheckName = matrix.house001bData[mapLocationIndex1].name;
-		
-			secondCheckId = matrix.house001bData[mapLocationIndex2].id;
-			secondCheckType = matrix.house001bData[mapLocationIndex2].type;
-			secondCheckName = matrix.house001bData[mapLocationIndex2].name;
+			firstCheckId = matrix.house001bMatrix[mapLocationIndex1].data;
+		firstCheckType = matrix.house001bMatrix[mapLocationIndex1].type;
+		firstCheckName = matrix.house001bMatrix[mapLocationIndex1].name;
+
+		secondCheckId = matrix.house001bMatrix[mapLocationIndex2].data;
+		secondCheckType = matrix.house001bMatrix[mapLocationIndex2].type;
+		secondCheckName = matrix.house001bMatrix[mapLocationIndex2].name;
 		break;
-		
+
 		default:
 			firstCheckId = -1;
 			firstCheckType = null;
 			firstCheckName = null;
-			
+
 			secondCheckId = -1;
 			secondCheckType = null;
 			secondCheckName = null;
 			break;
-		
+
 		}
 
 		//Check pixels
@@ -354,43 +365,71 @@ public class Screen {
 	public void setMap (String mapName) {
 		String from = this.mapName;
 		this.mapName = mapName;
-		
+
 		switch (mapName) {
 		case ("map"):
 			mapWidth = matrix.mapWidth;
-			mapHeight = matrix.mapHeight;
-			xOffset = mapOffsetX;
-			yOffset = mapOffsetY;
+		mapHeight = matrix.mapHeight;
+		xOffset = mapOffsetX;
+		yOffset = mapOffsetY;
 		break;
 
 		case ("house001"):
 			mapWidth = matrix.house001Width;
-			mapHeight = matrix.house001Height;
-			
-			if (from.equals("map")) {
-				mapOffsetX = xOffset;
-				mapOffsetY = yOffset;
-				xOffset = 4*BASE;
-				yOffset = 8*BASE;
-			}
-			else {
-				xOffset = 9*BASE;
-				yOffset = 2*BASE;
-			}
+		mapHeight = matrix.house001Height;
+
+		if (from.equals("map")) {
+			mapOffsetX = xOffset;
+			mapOffsetY = yOffset;
+			xOffset = 4*BASE;
+			yOffset = 8*BASE;
+		}
+		else {
+			xOffset = 9*BASE;
+			yOffset = 2*BASE;
+		}
 		break;	
-		
+
 		case ("house001b"):
 			mapWidth = matrix.house001Width;
-			mapHeight = matrix.house001Height;
-			xOffset = 12*BASE;
-			yOffset = 2*BASE;
+		mapHeight = matrix.house001Height;
+		xOffset = 12*BASE;
+		yOffset = 2*BASE;
 		}
 		moving = false;
 	}
 
-	public void printStuff() {
-		long total = Runtime.getRuntime().totalMemory()/(1024*1024);
-		long free = Runtime.getRuntime().freeMemory()/(1024*1024);
-		System.out.println("total: " + total + "    free: " + free);
+	public static void printMemory() {
+		//Getting the runtime reference from system
+        Runtime runtime = Runtime.getRuntime();
+        
+        int mb = 1024*1024;
+         
+        System.out.println("");
+        System.out.println("");
+        
+        System.out.println("##### Heap utilization statistics [MB] #####");
+         
+        //Print used memory
+        System.out.println("Used Memory: "
+            + (runtime.totalMemory() - runtime.freeMemory()) / mb + " MB");
+ 
+        //Print free memory
+        System.out.println("Free Memory: "
+            + runtime.freeMemory() / mb + " MB");
+         
+        //Print total available memory
+        System.out.println("Total Memory: " + runtime.totalMemory() / mb + " MB");
+ 
+        //Print Maximum available memory
+        System.out.println("Max Memory: " + runtime.maxMemory() / mb + " MB");
+        
+        System.out.println("");
+        System.out.println("");
+    
 	}
+
+	public void printStuff() {
+	}
+
 }

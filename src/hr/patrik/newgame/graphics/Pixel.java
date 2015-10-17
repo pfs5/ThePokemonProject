@@ -12,12 +12,18 @@ package hr.patrik.newgame.graphics;
 
 public class Pixel {
 	
-	public int id;
+	public int color;
+	public String layer;
+
+	public int data;
 	public String type;
 	public String name;
 	
-	public Pixel (int id) {
-		this.id = id;
+	public Pixel (int color, String layer, int data) {
+		this.color = color;
+		this.layer = layer;
+		this.data = data;
+		
 		name = "Pixel";
 		type = "Pixel";
 	}
@@ -29,5 +35,6 @@ public class Pixel {
 	public void setName (String name) {
 		this.name = name;
 	}
+	
 	
 }

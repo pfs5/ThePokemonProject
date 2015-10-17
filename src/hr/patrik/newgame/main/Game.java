@@ -16,10 +16,12 @@ import javax.swing.JFrame;
 public class Game extends Canvas implements Runnable {
 
 	private static final long serialVersionUID = 1L;
+	
 	private enum STATE {
 		GAME,
 		BATTLE
 	}
+	
 	//Window settings
 	private static int WIDTH = 500;
 	private static int HEIGHT = (int) (WIDTH*(9./16.));
@@ -30,7 +32,7 @@ public class Game extends Canvas implements Runnable {
 
 	private static int width = WIDTH*scale;
 	private static int height = HEIGHT*scale;
-	final int ups = speed*scale;
+	int ups = speed*scale;
 	private STATE state;
 
 	//Initial position
@@ -79,13 +81,15 @@ public class Game extends Canvas implements Runnable {
 	public void run () {
 		long lastTime = System.nanoTime();
 		long timer = System.currentTimeMillis();
-		final double ns = 1000000000.0 / ups;
+		double ns = 1000000000.0 / ups;
 		double delta = 0;
 		int frames = 0;
 		int updates = 0;
 
 		//Game loop
 		while (running) {
+			ns = 1000000000.0 / ups;
+			
 			//Measure FPS and UPS
 			long now = System.nanoTime();
 			delta += (now-lastTime) / ns;
@@ -133,9 +137,24 @@ public class Game extends Canvas implements Runnable {
 
 		if (keyboard.keys[KeyEvent.VK_D]) 
 			screen.setMove("R");
+		
+		if (keyboard.keys[KeyEvent.VK_SPACE])
+			setSpeed();
+		
+		if (keyboard.keys[KeyEvent.VK_SPACE] == false)
+			resetSpeed();
 
 	}
 
+	public void setSpeed() {
+		int k = 2; 
+		ups = speed*scale*k;
+	}
+	
+	public void resetSpeed() {
+		ups = speed*scale;
+	}
+	
 	//Game graphics
 	public void render () {
 
@@ -177,6 +196,9 @@ public class Game extends Canvas implements Runnable {
 		game.frame.pack();
 		game.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		game.frame.setLocationRelativeTo(null);
+		game.frame.requestFocusInWindow();
+		game.frame.requestFocus();
+		game.frame.setFocusable(true);
 		game.frame.setVisible(true);
 
 		game.start();
