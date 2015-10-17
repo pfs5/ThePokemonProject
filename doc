@@ -3,6 +3,13 @@ block size - 30x30 px
 char size  - 30x40 px
 base pixel - 2x2 px
 
+#Map list
+	map
+	house001
+	house001b
+
+#Character list
+	mainCharacter
 
 
 Pixel function matrix
