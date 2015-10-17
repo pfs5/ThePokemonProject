@@ -34,7 +34,7 @@ public class Game extends Canvas implements Runnable {
 	private STATE state;
 
 	//Initial position
-	int xOffset = 0;
+	int xOffset = BASE*scale*20;
 	int yOffset = BASE*scale*4;
 
 	private Thread thread;

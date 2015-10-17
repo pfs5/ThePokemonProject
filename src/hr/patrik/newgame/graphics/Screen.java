@@ -140,6 +140,10 @@ public class Screen {
 				case "house001":
 					pixels [width*y+x] = matrix.house001Bottom[mapIndex];
 					break;
+
+				case "house001b":
+					pixels [width*y+x] = matrix.house001bBottom[mapIndex];
+					break;
 				}
 			}
 		}
@@ -176,6 +180,11 @@ public class Screen {
 				case "house001":
 					if (matrix.house001Top[mapIndex] != ColorData.transparent())
 						pixels [width*y+x] = matrix.house001Top[mapIndex]; 
+					break;
+
+				case "house001b":
+					if (matrix.house001bTop[mapIndex] != ColorData.transparent())
+						pixels [width*y+x] = matrix.house001bTop[mapIndex]; 
 					break;
 				}
 			}
@@ -235,7 +244,7 @@ public class Screen {
 				yOffset--;
 
 			checkMovement();
-			
+
 
 
 		}
@@ -252,9 +261,9 @@ public class Screen {
 			mainCharacter.setStandImage();
 		}
 	}
-	
-	
-	
+
+
+
 	public void checkMovement(){
 		//Check movement
 		boolean passable = true;
@@ -267,32 +276,67 @@ public class Screen {
 		int locationX2 = (xOffset+mainCharacterX+BASE)/scale-1;
 		int locationY2 = (yOffset+mainCharacterY)/scale+mainCharacter.imageHeight-BASE/scale;
 		int mapLocationIndex2 = locationY2*mapWidth+locationX2;
-		
+
+		int firstCheckId;
+		String firstCheckType;
+		String firstCheckName;
+		int secondCheckId;
+		String secondCheckType;
+		String secondCheckName;
+
+		//Set pixels to be examined
 		switch (mapName) {
 		case ("map"):
-			if (matrix.mapData[mapLocationIndex1].id == ColorData.impassable())
-				passable = false;
-			else if (matrix.mapData[mapLocationIndex2].id == ColorData.impassable())
-				passable = false;
-
-			else if (matrix.mapData[mapLocationIndex1].type.equals("Door"))
-				setMap(matrix.mapData[mapLocationIndex1].name);
-			else if (matrix.mapData[mapLocationIndex2].type.equals("Door"))
-				setMap(matrix.mapData[mapLocationIndex2].name);
-
-		break;
+			firstCheckId = matrix.mapData[mapLocationIndex1].id;
+			firstCheckType = matrix.mapData[mapLocationIndex1].type;
+			firstCheckName = matrix.mapData[mapLocationIndex1].name;
+			
+			secondCheckId = matrix.mapData[mapLocationIndex2].id;
+			secondCheckType = matrix.mapData[mapLocationIndex2].type;
+			secondCheckName = matrix.mapData[mapLocationIndex2].name;
+			
+			break;
 		case ("house001"):
-			if (matrix.house001Data[mapLocationIndex1].id == ColorData.impassable())
-				passable = false;
-			else if (matrix.house001Data[mapLocationIndex2].id == ColorData.impassable())
-				passable = false;
-		
-			else if (matrix.house001Data[mapLocationIndex1].type.equals("Door"))
-				setMap(matrix.house001Data[mapLocationIndex1].name);
-				else if (matrix.house001Data[mapLocationIndex2].type.equals("Door"))
-				setMap(matrix.house001Data[mapLocationIndex2].name);
+			firstCheckId = matrix.house001Data[mapLocationIndex1].id;
+			firstCheckType = matrix.house001Data[mapLocationIndex1].type;
+			firstCheckName = matrix.house001Data[mapLocationIndex1].name;
+			
+			secondCheckId = matrix.house001Data[mapLocationIndex2].id;
+			secondCheckType = matrix.house001Data[mapLocationIndex2].type;
+			secondCheckName = matrix.house001Data[mapLocationIndex2].name;
 		break;
+		case ("house001b"):
+			firstCheckId = matrix.house001bData[mapLocationIndex1].id;
+			firstCheckType = matrix.house001bData[mapLocationIndex1].type;
+			firstCheckName = matrix.house001bData[mapLocationIndex1].name;
+		
+			secondCheckId = matrix.house001bData[mapLocationIndex2].id;
+			secondCheckType = matrix.house001bData[mapLocationIndex2].type;
+			secondCheckName = matrix.house001bData[mapLocationIndex2].name;
+		break;
+		
+		default:
+			firstCheckId = -1;
+			firstCheckType = null;
+			firstCheckName = null;
+			
+			secondCheckId = -1;
+			secondCheckType = null;
+			secondCheckName = null;
+			break;
+		
 		}
+
+		//Check pixels
+		if (firstCheckId == ColorData.impassable())
+			passable = false;
+		else if (secondCheckId == ColorData.impassable())
+			passable = false;
+
+		else if (firstCheckType.equals("Door"))
+			setMap(firstCheckName);
+		else if (secondCheckType.equals("Door"))
+			setMap(secondCheckName);
 
 		if (passable == false) {
 			//Undo move
@@ -306,31 +350,47 @@ public class Screen {
 				xOffset--;
 		}
 	}
-	
+
 	public void setMap (String mapName) {
+		String from = this.mapName;
 		this.mapName = mapName;
+		
 		switch (mapName) {
 		case ("map"):
 			mapWidth = matrix.mapWidth;
 			mapHeight = matrix.mapHeight;
-			
 			xOffset = mapOffsetX;
 			yOffset = mapOffsetY;
-			break;
+		break;
 
 		case ("house001"):
 			mapWidth = matrix.house001Width;
 			mapHeight = matrix.house001Height;
 			
-			mapOffsetX = xOffset;
-			mapOffsetY = yOffset;
-			xOffset = 4*BASE;
-			yOffset = 8*BASE;
-			break;	
+			if (from.equals("map")) {
+				mapOffsetX = xOffset;
+				mapOffsetY = yOffset;
+				xOffset = 4*BASE;
+				yOffset = 8*BASE;
+			}
+			else {
+				xOffset = 9*BASE;
+				yOffset = 2*BASE;
+			}
+		break;	
+		
+		case ("house001b"):
+			mapWidth = matrix.house001Width;
+			mapHeight = matrix.house001Height;
+			xOffset = 12*BASE;
+			yOffset = 2*BASE;
 		}
 		moving = false;
 	}
 
 	public void printStuff() {
+		long total = Runtime.getRuntime().totalMemory()/(1024*1024);
+		long free = Runtime.getRuntime().freeMemory()/(1024*1024);
+		System.out.println("total: " + total + "    free: " + free);
 	}
 }
