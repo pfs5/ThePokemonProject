@@ -5,10 +5,13 @@ Added character movements and turning.
 Added character walking movements.
 
 #14.10.2015.
-Added terrain collisions
+Added terrain collisions.
 
 #15.10.2015.
-Basic collisions working properly
+Basic collisions working properly.
 
 #18.10.2015.
-Memory optimisation performed
+Memory optimisation performed.
+
+#18.10.2015.
+Added arrow movement. Character is drawn corectly.

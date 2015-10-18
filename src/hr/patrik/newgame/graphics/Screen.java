@@ -195,17 +195,20 @@ public class Screen {
 					break;
 				}
 
+				//Draw top layer
 				if (bottom)
 					pixels [width*y+x] = colorBottom;
 
-				//TODO draw char
+				//Draw Character
 				int charX = (x-mainCharacterX)/scale;
 				int charY = (y-mainCharacterY)/scale;
-				if (x>=mainCharacterX && x<mainCharacterX+mainCharacterWidth
-						&& y>= mainCharacterY && y<mainCharacterY+mainCharacterHeight)
+				
+				if (x>=mainCharacterX && x<mainCharacterX+mainCharacterWidth*scale
+						&& y>= mainCharacterY && y<mainCharacterY+mainCharacterHeight*scale)
 					if (mainCharacterImage[charY*mainCharacterWidth+charX] != ColorData.transparent())
 						pixels[width*y+x] = mainCharacterImage[charY*mainCharacterWidth+charX];
 
+				//Draw bottom layer
 				if (top)
 					pixels[width*y+x] = colorTop;
 			}
