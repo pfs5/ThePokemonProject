@@ -100,6 +100,13 @@ public class Screen {
 		mapWidth = matrix.mapWidth;
 		mapHeight = matrix.mapHeight;
 
+		System.out.println("Loading window.");
+		System.out.println("");
+		System.out.println("Window loaded.");
+		System.out.println("Aspect ratio 9/16");
+		System.out.println("Size: "+width+"x"+height+" px");
+		System.out.println("Scale: "+scale+"x");
+		
 		//Load main character
 		mainCharacterX = ((width/2)/BASE)*BASE;
 		mainCharacterY = ((height/2)/BASE)*BASE;
