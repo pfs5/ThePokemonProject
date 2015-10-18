@@ -30,6 +30,11 @@ public class Matrix {
 	public int house001bWidth;
 	public int house001bHeight;
 	public Pixel[] house001bMatrix;
+	
+	//house002
+	public int house002Width;
+	public int house002Height;
+	public Pixel[] house002Matrix;
 
 	public Matrix () {
 		maps = new Maps();
@@ -41,14 +46,15 @@ public class Matrix {
 		System.out.println("Analizing memory.");
 		Screen.printMemory();
 		System.out.println("Loading maps.");
-		
-		
+
+
 		//Initialize maps
 		initMap();
 		initHouse001();
 		initHouse001b();
+		initHouse002();
 		System.gc();
-		
+
 		System.out.println("##### Initializing maps #####");
 		System.out.println("");
 		System.out.println("Maps initialized.");
@@ -74,7 +80,7 @@ public class Matrix {
 
 			int w = mapWidth;
 			int h = mapHeight;
-			
+
 			int[] bottomLayer;
 			bottomLayer = new int[w*h];
 			BottomImage.getRGB(0,0,w,h,bottomLayer,0,w);
@@ -82,19 +88,19 @@ public class Matrix {
 			int[] topLayer;
 			topLayer = new int[w*h];
 			TopImage.getRGB(0,0,w,h,topLayer,0,w);
-			
+
 			int[] dataLayer;
 			dataLayer= new int[w*h];
 			DataImage.getRGB(0,0,w,h,dataLayer,0,w);
 
 			mapMatrix = new Pixel[w*h];
-			
+
 			for (int i=0; i<w*h; i++) {
-				
+
 				int colorTop = topLayer[i];
 				int colorBottom = bottomLayer[i];
 				int data = dataLayer[i];
-				
+
 				//Save pixel color
 				if (colorTop == ColorData.transparent()) {
 					Pixel newPixel = new Pixel(colorBottom, "bottom", data);
@@ -104,7 +110,7 @@ public class Matrix {
 					Pixel newPixel = new Pixel(colorTop, "top", data);
 					mapMatrix[i] = newPixel;
 				}
-				
+
 				//Save pixel data
 				mapMatrix[i] = checkSpecial(mapMatrix[i]);
 			}
@@ -141,19 +147,19 @@ public class Matrix {
 			int[] topLayer;
 			topLayer = new int[w*h];
 			TopImage.getRGB(0,0,w,h,topLayer,0,w);
-			
+
 			int[] dataLayer;
 			dataLayer= new int[w*h];
 			DataImage.getRGB(0,0,w,h,dataLayer,0,w);
-			
+
 			house001Matrix = new Pixel[w*h];
-			
+
 			for (int i=0; i<w*h; i++) {
-				
+
 				int colorTop = topLayer[i];
 				int colorBottom = bottomLayer[i];
 				int data = dataLayer[i];
-				
+
 				//Save pixel color
 				if (colorTop == ColorData.transparent()) {
 					Pixel newPixel = new Pixel(colorBottom, "bottom", data);
@@ -163,7 +169,7 @@ public class Matrix {
 					Pixel newPixel = new Pixel(colorTop, "top", data);
 					house001Matrix[i] = newPixel;
 				}
-				
+
 				//Save pixel data
 				house001Matrix[i] = checkSpecial(house001Matrix[i]);
 			}
@@ -172,7 +178,7 @@ public class Matrix {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void initHouse001b() {
 		//Images
 		BufferedImage TopImage;
@@ -200,19 +206,19 @@ public class Matrix {
 			int[] topLayer;
 			topLayer = new int[w*h];
 			TopImage.getRGB(0,0,w,h,topLayer,0,w);
-			
+
 			int[] dataLayer;
 			dataLayer= new int[w*h];
 			DataImage.getRGB(0,0,w,h,dataLayer,0,w);
 
 			house001bMatrix = new Pixel[w*h];
-			
+
 			for (int i=0; i<w*h; i++) {
-				
+
 				int colorTop = topLayer[i];
 				int colorBottom = bottomLayer[i];
 				int data = dataLayer[i];
-				
+
 				//Save pixel color
 				if (colorTop == ColorData.transparent()) {
 					Pixel newPixel = new Pixel(colorBottom, "bottom", data);
@@ -222,9 +228,68 @@ public class Matrix {
 					Pixel newPixel = new Pixel(colorTop, "top", data);
 					house001bMatrix[i] = newPixel;
 				}
-				
+
 				//Save pixel data
 				house001bMatrix[i] = checkSpecial(house001bMatrix[i]);
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void initHouse002() {
+		//Images
+		BufferedImage TopImage;
+		BufferedImage BottomImage;
+		BufferedImage DataImage;
+
+		//Arrays
+
+		try {
+			//Load map layers
+			BottomImage = ImageIO.read(getClass().getResource(maps.house002BottomPath)); 
+			TopImage = ImageIO.read(getClass().getResource(maps.house002TopPath));
+			DataImage = ImageIO.read(getClass().getResource(maps.house002DataPath));
+
+			house002Width = BottomImage.getWidth();
+			house002Height = BottomImage.getHeight();
+
+			int w = house002Width;
+			int h = house002Height;
+
+			int[] bottomLayer;
+			bottomLayer = new int[w*h];
+			BottomImage.getRGB(0,0,w,h,bottomLayer,0,w);
+
+			int[] topLayer;
+			topLayer = new int[w*h];
+			TopImage.getRGB(0,0,w,h,topLayer,0,w);
+
+			int[] dataLayer;
+			dataLayer= new int[w*h];
+			DataImage.getRGB(0,0,w,h,dataLayer,0,w);
+
+			house002Matrix = new Pixel[w*h];
+
+			for (int i=0; i<w*h; i++) {
+
+				int colorTop = topLayer[i];
+				int colorBottom = bottomLayer[i];
+				int data = dataLayer[i];
+
+				//Save pixel color
+				if (colorTop == ColorData.transparent()) {
+					Pixel newPixel = new Pixel(colorBottom, "bottom", data);
+					house002Matrix[i] = newPixel;
+				}
+				else {
+					Pixel newPixel = new Pixel(colorTop, "top", data);
+					house002Matrix[i] = newPixel;
+				}
+
+				//Save pixel data
+				house002Matrix[i] = checkSpecial(house002Matrix[i]);
 			}
 
 		} catch (IOException e) {
@@ -237,10 +302,16 @@ public class Matrix {
 		int data = newPixel.data;
 
 		switch (data) {
+		
 		case ColorData.house001: newPixel.setType("Door"); newPixel.setName("house001");
 		break;
+		
 		case ColorData.house001b: newPixel.setType("Door"); newPixel.setName("house001b");
 		break;
+
+		case ColorData.house002: newPixel.setType("Door"); newPixel.setName("house002");
+		break;
+		
 		case ColorData.map: newPixel.setType("Door"); newPixel.setName("map");
 		break;
 		}
@@ -248,5 +319,5 @@ public class Matrix {
 		return newPixel;
 	}
 
-	
+
 }

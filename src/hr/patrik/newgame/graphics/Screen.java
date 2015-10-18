@@ -1,12 +1,12 @@
 package hr.patrik.newgame.graphics;
 
+import hr.patrik.newgame.main.GameState;
 import hr.patrik.newgame.objects.Attack;
 import hr.patrik.newgame.objects.Item;
 import hr.patrik.newgame.objects.Lists;
 import hr.patrik.newgame.objects.Matrix;
 import hr.patrik.newgame.objects.Pokemon;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 
 /*
@@ -16,7 +16,9 @@ import java.util.ArrayList;
  */
 
 public class Screen {
-
+	
+	//Game state
+	private GameState gameState;
 
 	//Main window variables
 	private int width;
@@ -78,6 +80,7 @@ public class Screen {
 		pixels = new int [width*height];
 		lists = new Lists();
 		matrix = new Matrix();
+		gameState = new GameState();
 
 		mapName = "map";
 		movable = true;
@@ -87,6 +90,7 @@ public class Screen {
 		tick = 0;
 		
 		load();
+		gameState.setState(xOffset, yOffset, xOffset, yOffset, mapName, direction);
 	}
 
 	public void load () {
@@ -125,7 +129,13 @@ public class Screen {
 
 	//Draw
 	public void render () {
-		//Draw bottom map layer
+		
+		gameState.setState(xOffset, yOffset, xOffset, yOffset, mapName, direction);
+		
+		//Init char
+		mainCharacterImage = mainCharacter.image.getRGB(0, 0, mainCharacterWidth,
+				mainCharacterHeight, mainCharacterImage, 0, mainCharacterWidth);
+		
 		for (int y=0; y<height; y++) {
 			int mapY = (y+yOffset)/scale;
 
@@ -172,34 +182,34 @@ public class Screen {
 						top = true;
 					}
 					break;
+					
+				case "house002":
+					if (matrix.house002Matrix[mapIndex].layer.equals("bottom")) {
+						colorBottom = matrix.house002Matrix[mapIndex].color;
+						bottom = true;
+					}
+					else {
+						colorTop = matrix.house002Matrix[mapIndex].color;
+						top = true;
+					}
+					break;
 				}
 
 				if (bottom)
 					pixels [width*y+x] = colorBottom;
 
 				//TODO draw char
+				int charX = (x-mainCharacterX)/scale;
+				int charY = (y-mainCharacterY)/scale;
+				if (x>=mainCharacterX && x<mainCharacterX+mainCharacterWidth
+						&& y>= mainCharacterY && y<mainCharacterY+mainCharacterHeight)
+					if (mainCharacterImage[charY*mainCharacterWidth+charX] != ColorData.transparent())
+						pixels[width*y+x] = mainCharacterImage[charY*mainCharacterWidth+charX];
 
 				if (top)
 					pixels[width*y+x] = colorTop;
 			}
 		}
-
-
-				//Draw main character
-				mainCharacterImage = mainCharacter.image.getRGB(0, 0, mainCharacterWidth,
-						mainCharacterHeight, mainCharacterImage, 0, mainCharacterWidth);
-		
-				for (int y=0; y<mainCharacterHeight*scale; y++) {
-					for (int x=0; x<mainCharacterWidth*scale; x++) {
-						int realY = y/scale;
-						int realX = x/scale;
-						int mapY = (y+mainCharacterY);
-						int mapX = (x+mainCharacterX);
-						int mainCharIndex = realY*mainCharacterWidth+realX;
-						if (mainCharacterImage[mainCharIndex] != ColorData.transparent())	//transparency
-							pixels [width*mapY+mapX] = mainCharacterImage[mainCharIndex];
-					}
-				}
 	}
 
 	/*
@@ -299,31 +309,42 @@ public class Screen {
 		switch (mapName) {
 		case ("map"):
 			firstCheckId = matrix.mapMatrix[mapLocationIndex1].data;
-		firstCheckType = matrix.mapMatrix[mapLocationIndex1].type;
-		firstCheckName = matrix.mapMatrix[mapLocationIndex1].name;
+			firstCheckType = matrix.mapMatrix[mapLocationIndex1].type;
+			firstCheckName = matrix.mapMatrix[mapLocationIndex1].name;
 
-		secondCheckId = matrix.mapMatrix[mapLocationIndex2].data;
-		secondCheckType = matrix.mapMatrix[mapLocationIndex2].type;
-		secondCheckName = matrix.mapMatrix[mapLocationIndex2].name;
-
+			secondCheckId = matrix.mapMatrix[mapLocationIndex2].data;
+			secondCheckType = matrix.mapMatrix[mapLocationIndex2].type;
+			secondCheckName = matrix.mapMatrix[mapLocationIndex2].name;
 		break;
+		
 		case ("house001"):
 			firstCheckId = matrix.house001Matrix[mapLocationIndex1].data;
-		firstCheckType = matrix.house001Matrix[mapLocationIndex1].type;
-		firstCheckName = matrix.house001Matrix[mapLocationIndex1].name;
+			firstCheckType = matrix.house001Matrix[mapLocationIndex1].type;
+			firstCheckName = matrix.house001Matrix[mapLocationIndex1].name;
 
-		secondCheckId = matrix.house001Matrix[mapLocationIndex2].data;
-		secondCheckType = matrix.house001Matrix[mapLocationIndex2].type;
-		secondCheckName = matrix.house001Matrix[mapLocationIndex2].name;
+			secondCheckId = matrix.house001Matrix[mapLocationIndex2].data;
+			secondCheckType = matrix.house001Matrix[mapLocationIndex2].type;
+			secondCheckName = matrix.house001Matrix[mapLocationIndex2].name;
 		break;
+		
 		case ("house001b"):
 			firstCheckId = matrix.house001bMatrix[mapLocationIndex1].data;
-		firstCheckType = matrix.house001bMatrix[mapLocationIndex1].type;
-		firstCheckName = matrix.house001bMatrix[mapLocationIndex1].name;
+			firstCheckType = matrix.house001bMatrix[mapLocationIndex1].type;
+			firstCheckName = matrix.house001bMatrix[mapLocationIndex1].name;
 
-		secondCheckId = matrix.house001bMatrix[mapLocationIndex2].data;
-		secondCheckType = matrix.house001bMatrix[mapLocationIndex2].type;
-		secondCheckName = matrix.house001bMatrix[mapLocationIndex2].name;
+			secondCheckId = matrix.house001bMatrix[mapLocationIndex2].data;
+			secondCheckType = matrix.house001bMatrix[mapLocationIndex2].type;
+			secondCheckName = matrix.house001bMatrix[mapLocationIndex2].name;
+		break;
+		
+		case ("house002"):
+			firstCheckId = matrix.house002Matrix[mapLocationIndex1].data;
+			firstCheckType = matrix.house002Matrix[mapLocationIndex1].type;
+			firstCheckName = matrix.house002Matrix[mapLocationIndex1].name;
+
+			secondCheckId = matrix.house002Matrix[mapLocationIndex2].data;
+			secondCheckType = matrix.house002Matrix[mapLocationIndex2].type;
+			secondCheckName = matrix.house002Matrix[mapLocationIndex2].name;
 		break;
 
 		default:
@@ -369,14 +390,14 @@ public class Screen {
 		switch (mapName) {
 		case ("map"):
 			mapWidth = matrix.mapWidth;
-		mapHeight = matrix.mapHeight;
-		xOffset = mapOffsetX;
-		yOffset = mapOffsetY;
+			mapHeight = matrix.mapHeight;
+			xOffset = mapOffsetX;
+			yOffset = mapOffsetY;
 		break;
 
 		case ("house001"):
 			mapWidth = matrix.house001Width;
-		mapHeight = matrix.house001Height;
+			mapHeight = matrix.house001Height;
 
 		if (from.equals("map")) {
 			mapOffsetX = xOffset;
@@ -392,10 +413,22 @@ public class Screen {
 
 		case ("house001b"):
 			mapWidth = matrix.house001Width;
-		mapHeight = matrix.house001Height;
-		xOffset = 12*BASE;
-		yOffset = 2*BASE;
+			mapHeight = matrix.house001Height;
+			xOffset = 12*BASE;
+			yOffset = 2*BASE;
+		break;
+		
+		case ("house002"):
+			mapWidth = matrix.house002Width;
+			mapHeight = matrix.house002Height;
+
+			mapOffsetX = xOffset;
+			mapOffsetY = yOffset;
+			xOffset = 4*BASE;
+			yOffset = 8*BASE;
+		break;	
 		}
+		
 		moving = false;
 	}
 

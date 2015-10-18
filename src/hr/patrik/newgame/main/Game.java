@@ -126,6 +126,8 @@ public class Game extends Canvas implements Runnable {
 	}
 
 	public void getKeyGame () {	
+		
+		//WASD
 		if (keyboard.keys[KeyEvent.VK_W])
 			screen.setMove("U");
 
@@ -138,6 +140,20 @@ public class Game extends Canvas implements Runnable {
 		if (keyboard.keys[KeyEvent.VK_D]) 
 			screen.setMove("R");
 		
+		//ARROW KEYS
+		if (keyboard.keys[KeyEvent.VK_UP])
+			screen.setMove("U");
+
+		if (keyboard.keys[KeyEvent.VK_LEFT])
+			screen.setMove("L");
+
+		if (keyboard.keys[KeyEvent.VK_DOWN])
+			screen.setMove("D");
+
+		if (keyboard.keys[KeyEvent.VK_RIGHT]) 
+			screen.setMove("R");
+		
+		//SPEED
 		if (keyboard.keys[KeyEvent.VK_SPACE])
 			setSpeed();
 		

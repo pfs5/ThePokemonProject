@@ -6,6 +6,7 @@ public class ColorData {
 	public static final int map = -12866791;
 	public static final int house001 = -1546685;
 	public static final int house001b = -9188520;
+	public static final int house002 = -3184049;
 	
 	
 	public static int passable () {
